@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RY SERVER HACK</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: black;
+            color: green;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            font-size: 1.2em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2em;
+            color: green;
+            text-shadow: 0 0 8px red;
+            margin: 10px;
+        }
+
+        #timer, #issueNumber, #predictedNumber {
+            margin: 15px 0;
+            color: red;
+            text-shadow: 0 0 4px red;
+            font-size: 1.4em;
+        }
+
+        .buttons-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .telegram-button {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            background-color: red;
+            border: none;
+            color: black;
+            cursor: pointer;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            text-decoration: none;
+            box-shadow: 0 0 10px red;
+            transition: all 0.7s ease-in-out;
+        }
+
+        .telegram-button:hover {
+            background-color: #cc0000;
+            box-shadow: 0 0 15px #cc0000;
+        }
+
+        .particle-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            background-color: green;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: particle-animation 45s infinite;
+        }
+
+        @keyframes particle-animation {
+            5% {
+                opacity: 1;
+                transform: translateX(0) translateY(0);
+            }
+            50% {
+                opacity: 0.6;
+                transform: translateX(100px) translateY(100px);
+            }
+            100% {
+                opacity: 0;
+                transform: translateX(200px) translateY(200px);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>RY SERVER HACK </h1>
+    
+    
+    <br/>
+
+    <!-- Timer Display -->
+    <div id="timer">00:00</div>
+    
+   <br/>
+   
+    <!-- Issue Number Display -->
+    <div id="issueNumber">Period: </div>
+    
+       <br/>
+
+    <!-- Prediction Display -->
+    <div id="predictedNumber">Bet on</div>
+
+    <!-- Telegram Button Centered -->
+    <div class="buttons-container">
+        <a href="https://t.me/+KhMLAyhoF2MwYjY1" class="telegram-button" target="_blank">TELEGRAM</a>
+    </div>
+
+    <!-- Particle Effect -->
+    <div class="particle-background"></div>
+
+    <script>
+        // Particle effect generation
+        const particleBackground = document.querySelector('.particle-background');
+        const numberOfParticles = 50; // Number of visible particles
+
+        // Function to generate random particles
+        function generateParticles() {
+            for (let i = 0; i < numberOfParticles; i++) {
+                let particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = `${Math.random() * window.innerWidth}px`; // Random x position
+                particle.style.top = `${Math.random() * window.innerHeight}px`; // Random y position
+                particle.style.animationDuration = `${Math.random() * 3 + 2}s`; // Random animation duration
+                particle.style.animationDelay = `${Math.random() * 5}s`; // Random animation delay
+                particleBackground.appendChild(particle);
+            }
+        }
+
+        generateParticles(); // Initial particle generation
+
+        // Fetch game issue (mocked example API)
+        const fetchGameIssue = () => {
+            return fetch('https://api.bdg88zf.com/api/webapi/GetGameIssue', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json;charset=UTF-8',
+                    'Accept': 'application/json, text/plain, */*'
+                },
+                body: JSON.stringify({
+                    typeId: 1,
+                    language: 0,
+                    random: "e7fe6c090da2495ab8290dac551ef1ed",
+                    signature: "1F390E2B2D8A55D693E57FD905AE73A7",
+                    timestamp: 1723726679
+                })
+            })
+            .then(response => response.json())
+            .catch(error => {
+                console.error('Error fetching game issue:', error);
+            });
+        };
+
+        // Function to predict next number (mocked logic)
+        const predictNextNumber = () => {
+            return Math.random() < 0.5 ? 'Small' : 'Big';
+        };
+
+        let currentIssueNumber = null;
+
+        const issueNumberElement = document.getElementById('issueNumber');
+        const predictedNumberElement = document.getElementById('predictedNumber');
+        const timerElement = document.getElementById('timer');
+
+        // Update the prediction on new issue
+        const updatePrediction = (newIssueNumber) => {
+            if (currentIssueNumber !== newIssueNumber) {
+                currentIssueNumber = newIssueNumber;
+                issueNumberElement.textContent = `Period: ${currentIssueNumber}`;
+
+                const prediction = predictNextNumber();
+                predictedNumberElement.textContent = `Bet on: ${prediction}`;
+            }
+        };
+
+        // Update the timer based on the issue time
+        const updateTimer = () => {
+            fetchGameIssue().then(data => {
+                if (!data.data) return;
+
+                const { endTime, issueNumber } = data.data;
+                if (!endTime || !issueNumber) return;
+
+                const endDate = new Date(endTime);
+                const now = new Date();
+                const remainingTimeMs = endDate - now;
+
+                if (remainingTimeMs <= 0) {
+                    timerElement.textContent = "00:00";
+                } else {
+                    const minutes = String(Math.floor((remainingTimeMs % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                    const seconds = String(Math.floor((remainingTimeMs % (1000 * 60)) / 1000)).padStart(2, '0');
+                    timerElement.textContent = `${minutes}:${seconds}`;
+                }
+
+                if (currentIssueNumber !== issueNumber) {
+                    updatePrediction(issueNumber);
+                }
+            });
+        };
+
+        // Initial fetch and prediction
+        fetchGameIssue().then(data => {
+            if (data.data) {
+                const initialIssueNumber = data.data.issueNumber;
+                updatePrediction(initialIssueNumber);
+            }
+        });
+
+        // Timer update every second
+        setInterval(updateTimer, 1000);
+    </script>
+
+</body>
+</html>
