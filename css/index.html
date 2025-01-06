@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #0d0d0d;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 350px;
+            padding: 20px;
+            border-radius: 15px;
+            background: #1a1a1a;
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.6), 0 0 15px rgba(0, 255, 255, 0.4);
+            text-align: center;
+        }
+
+        h1 {
+            color: #ff66cc;
+            text-shadow: 0 0 15px rgba(255, 102, 204, 1);
+            font-size: 1.6em;
+            margin-bottom: 20px;
+        }
+
+        .box {
+            padding: 15px;
+            margin: 15px 0;
+            background: linear-gradient(135deg, #222, #333);
+            border-radius: 12px;
+            border: 2px solid #ff66cc;
+            box-shadow: inset 0 0 10px rgba(255, 0, 255, 0.5);
+            color: #ffffff;
+            font-size: 1.2em;
+        }
+
+        #timer {
+            color: #00ffff;
+            font-weight: bold;
+            font-size: 1.4em;
+        }
+
+        #currentResult {
+            font-size: 1.3em;
+            color: #ff66cc;
+        }
+
+        .history-list {
+            list-style-type: none;
+            padding: 0;
+            font-size: 0.9em;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+        }
+
+        .history-item {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 8px;
+            border-left: 3px solid #ff66cc;
+            box-shadow: 0 0 8px rgba(255, 102, 204, 0.3);
+        }
+
+        .button-group {
+            margin-top: 20px;
+        }
+
+        button {
+            background: #ff66cc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            box-shadow: 0 0 8px rgba(255, 102, 204, 0.6);
+        }
+
+        button:hover {
+            background: #e55bb3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1> PRIVATE SERVER</h1>
+
+    <div class="box">
+        <div>Period Number</div>
+        <div id="periodNumber">Loading...</div>
+    </div>
+
+    <div class="box">
+        <div>Timer</div>
+        <div id="timer">00:60</div>
+    </div>
+
+    <div class="box">
+        <div>Current Result</div>
+        <div id="currentResult">Waiting...</div>
+    </div>
+
+    <div class="box">
+        <div>History</div>
+        <ul id="history" class="history-list"></ul>
+    </div>
+
+    <div class="button-group">
+        <button id="clearHistoryButton">Clear History</button>
+        <button id="refreshResultsButton">Refresh Results</button>
+    </div>
+</div>
+
+<script>
+    const periodNumberElement = document.getElementById('periodNumber');
+    const timerElement = document.getElementById('timer');
+    const currentResultElement = document.getElementById('currentResult');
+    const historyElement = document.getElementById('history');
+    const clearHistoryButton = document.getElementById('clearHistoryButton');
+    const refreshResultsButton = document.getElementById('refreshResultsButton');
+
+    const results = [
+        'SMALL', 'BIG', 'BIG', 'BIG', 'BIG', 'BIG', 'BIG', 'SMALL', 'BIG', 'SMALL', 
+        'SMALL', 'SMALL', 'SMALL', 'SMALL', 'BIG', 'SMALL', 'SMALL', 'BIG', 'BIG', 'SMALL', 
+        'BIG', 'BIG', 'BIG', 'SMALL', 'SMALL', 'SMALL', 'BIG', 'BIG', 'SMALL', 'BIG', 
+        'SMALL', 'SMALL', 'BIG', 'BIG', 'SMALL', 'SMALL', 'BIG', 'SMALL', 'SMALL', 'BIG'
+    ];
+    let currentPeriodNumber = 0;
+    let currentResultIndex = -1;
+    let lastDisplayedPeriod = -1;
+
+    function updatePeriodAndResult() {
+        const now = new Date();
+        const utcYear = now.getUTCFullYear();
+        const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const utcDay = String(now.getUTCDate()).padStart(2, '0');
+        const utcHours = now.getUTCHours();
+        const utcMinutes = now.getUTCMinutes();
+        const totalMinutes = utcHours * 60 + utcMinutes;
+
+        currentPeriodNumber = 10001 + totalMinutes;
+        const periodString = `${utcYear}${utcMonth}${utcDay}1000${currentPeriodNumber}`;
+        periodNumberElement.textContent = periodString;
+
+        if (currentPeriodNumber !== lastDisplayedPeriod && currentResultIndex < results.length - 1) {
+            currentResultIndex++;
+            const result = results[currentResultIndex];
+            currentResultElement.textContent = result;
+
+            const historyItem = document.createElement('li');
+            historyItem.textContent = `Period: ${periodString}, Result: ${result}`;
+            historyItem.className = 'history-item';
+            historyElement.prepend(historyItem);
+
+            lastDisplayedPeriod = currentPeriodNumber;
+        }
+    }
+
+    function startTimer() {
+        setInterval(() => {
+            const now = new Date();
+            const remainingSeconds = 60 - now.getUTCSeconds();
+            const secondsDisplay = remainingSeconds.toString().padStart(2, '0');
+            timerElement.textContent = `00:${secondsDisplay}`;
+
+            if (remainingSeconds === 60) {
+                updatePeriodAndResult();
+            }
+        }, 1000);
+    }
+
+    clearHistoryButton.addEventListener('click', () => {
+        historyElement.innerHTML = '';
+    });
+
+    refreshResultsButton.addEventListener('click', () => {
+        currentResultIndex = -1;
+        lastDisplayedPeriod = -1;
+        historyElement.innerHTML = '';
+        updatePeriodAndResult();
+    });
+
+    window.onload = startTimer;
+</script>
+
+</body>
+</html>
